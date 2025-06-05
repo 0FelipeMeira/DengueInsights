@@ -36,7 +36,7 @@ async def get_dengue_dataset():
         )
 
 
-@app.post("/dengue-dataset/save/", tags=["new"])
+@app.post("/dengue-dataset/save/", tags=["done"])
 async def save_dengue_dataset_to_db():
     csv_path = os.path.join(os.getcwd(), "dengue-dataset.csv")
     db_path = os.path.join(os.getcwd(), "dengue_data.db")
@@ -70,7 +70,7 @@ async def save_dengue_dataset_to_db():
         )
 
 
-@app.get("/dengue-alerts/", tags=["in dev"])
+@app.get("/dengue-alerts/", tags=["done"])
 async def get_dengue_alerts():
     doenca = "dengue"
     geocode = "3509502"
