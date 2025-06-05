@@ -36,6 +36,32 @@ async def get_dengue_dataset():
         )
 
 
+@app.get("/dengue-alerts/", tags=["done"])
+async def get_dengue_alerts():
+    doenca = "dengue"
+    geocode = "3509502"
+    data_format = "json"
+    api_url = f"{BASE_API_URL}?disease={doenca}&geocode={geocode}&format={data_format}"
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(api_url)
+
+    if response.status_code != 200:
+        raise HTTPException(
+            status_code=500, detail="Erro ao obter dados da API externa"
+        )
+
+    data = response.json()
+
+    df = pd.DataFrame(data)
+
+    if df.empty:
+        raise HTTPException(
+            status_code=404, detail="Nenhum alerta encontrado com esses critérios"
+        )
+
+    return df.to_json(orient="records")
+
 @app.post("/dengue-dataset/save/", tags=["done"])
 async def save_dengue_dataset_to_db():
     csv_path = os.path.join(os.getcwd(), "dengue-dataset.csv")
@@ -68,30 +94,3 @@ async def save_dengue_dataset_to_db():
             status_code=500,
             detail=f"Erro ao salvar os dados no banco de dados: {str(e)}",
         )
-
-
-@app.get("/dengue-alerts/", tags=["done"])
-async def get_dengue_alerts():
-    doenca = "dengue"
-    geocode = "3509502"
-    data_format = "json"
-    api_url = f"{BASE_API_URL}?disease={doenca}&geocode={geocode}&format={data_format}"
-
-    async with httpx.AsyncClient() as client:
-        response = await client.get(api_url)
-
-    if response.status_code != 200:
-        raise HTTPException(
-            status_code=500, detail="Erro ao obter dados da API externa"
-        )
-
-    data = response.json()
-
-    df = pd.DataFrame(data)
-
-    if df.empty:
-        raise HTTPException(
-            status_code=404, detail="Nenhum alerta encontrado com esses critérios"
-        )
-
-    return df.to_json(orient="records")
